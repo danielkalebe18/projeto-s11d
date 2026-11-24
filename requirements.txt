@@ -1,0 +1,12 @@
+Flask
+gunicorn
+rasterio
+numpy
+Pillow
+scikit-learn
+matplotlib
+pandas
+geopandas
+shapely
+pystac-client
+requests

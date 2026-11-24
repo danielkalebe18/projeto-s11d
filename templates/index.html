@@ -1,0 +1,599 @@
+￼
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoramento S11D</title>
+
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #101820;
+            color: #fff;
+        }
+
+        header {
+            background: #17232d;
+            padding: 20px 5%;
+            border-bottom: 2px solid #d99a27;
+        }
+
+        header h1 {
+            color: #f0ad35;
+            font-size: 25px;
+        }
+
+        header p {
+            color: #c4cbd1;
+            margin-top: 5px;
+        }
+
+        nav {
+            background: #202e39;
+            padding: 13px 5%;
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+        }
+
+        nav a:hover {
+            color: #f0ad35;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1400px;
+            margin: 25px auto;
+        }
+
+        .intro {
+            padding: 25px 0;
+        }
+
+        .intro h2 {
+            font-size: 30px;
+            margin-bottom: 12px;
+        }
+
+        .intro p {
+            color: #c5cbd0;
+            line-height: 1.6;
+        }
+
+        .status {
+            color: #65d68b;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .info-card {
+            background: #202e39;
+            border: 1px solid #344653;
+            border-radius: 9px;
+            padding: 18px;
+        }
+
+        .info-card small {
+            color: #aeb9c1;
+        }
+
+        .info-card h3 {
+            color: #f0ad35;
+            margin-top: 9px;
+        }
+
+        .section-title {
+            margin: 30px 0 15px;
+            font-size: 22px;
+        }
+
+        .map-panel {
+            background: #202e39;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .search-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .search-area input {
+            flex: 1;
+            min-width: 200px;
+            padding: 13px;
+            border-radius: 6px;
+            border: 1px solid #536675;
+            background: #fff;
+            color: #111;
+            font-size: 15px;
+        }
+
+        button {
+            border: none;
+            border-radius: 6px;
+            padding: 12px 17px;
+            background: #d99a27;
+            color: #111;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #f0b84d;
+        }
+
+        .map-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin: 15px 0;
+            color: #e1e6e9;
+        }
+
+        .map-options label {
+            cursor: pointer;
+        }
+
+        #mapa-leaflet {
+            width: 100%;
+            height: 570px;
+            border-radius: 8px;
+            z-index: 1;
+        }
+
+        #mensagem {
+            color: #f0ad35;
+            margin: 10px 0;
+            min-height: 20px;
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .legend-item {
+            background: #202e39;
+            padding: 13px;
+            border-radius: 7px;
+        }
+
+        .color {
+            display: inline-block;
+            width: 13px;
+            height: 13px;
+            border-radius: 3px;
+            margin-right: 8px;
+        }
+
+        .method {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .method article {
+            background: #202e39;
+            padding: 18px;
+            border-radius: 8px;
+        }
+
+        .method h3 {
+            color: #f0ad35;
+            margin-bottom: 9px;
+        }
+
+        .method p {
+            color: #c5cbd0;
+            line-height: 1.5;
+        }
+
+        footer {
+            background: #17232d;
+            text-align: center;
+            padding: 25px;
+            margin-top: 40px;
+            color: #aeb9c1;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: 94%;
+            }
+
+            #mapa-leaflet {
+                height: 430px;
+            }
+
+            .intro h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>S11D</h1>
+    <p>MONITORAMENTO S11D | PLATAFORMA DE ANÁLISE GEOESPACIAL</p>
+    <div class="status">● SISTEMA ONLINE</div>
+</header>
+
+<nav>
+    <a href="#inicio">Início</a>
+    <a href="#mapa">Mapa</a>
+    <a href="#classificacao">Classificação</a>
+    <a href="#metodologia">Metodologia</a>
+</nav>
+
+<main class="container">
+
+    <section class="intro" id="inicio">
+        <h2>Monitoramento Geoespacial do Complexo Minerário S11D</h2>
+        <p>
+            Análise territorial utilizando imagens de satélite,
+            geoprocessamento e classificação supervisionada.
+        </p>
+    </section>
+
+    <section class="info-grid">
+        <div class="info-card">
+            <small>SENSOR</small>
+            <h3>Sentinel-2</h3>
+        </div>
+
+        <div class="info-card">
+            <small>ANO</small>
+            <h3>2024</h3>
+        </div>
+
+        <div class="info-card">
+            <small>ALGORITMO</small>
+            <h3>Random Forest</h3>
+        </div>
+
+        <div class="info-card">
+            <small>CLASSES</small>
+            <h3>06</h3>
+        </div>
+    </section>
+
+    <section id="mapa">
+        <h2 class="section-title">Mapa interativo da região S11D</h2>
+
+        <div class="map-panel">
+
+            <div class="search-area">
+                <input
+                    type="text"
+                    id="pesquisa"
+                    placeholder="Pesquisar cidade, município ou localidade..."
+                >
+                <button onclick="pesquisarLocal()">Pesquisar</button>
+                <button onclick="centralizarS11D()">S11D</button>
+            </div>
+
+            <div id="mensagem">
+                Pesquise uma localidade ou navegue pelo mapa.
+            </div>
+
+            <div class="map-options">
+                <label>
+                    <input type="checkbox" id="camadaSentinel">
+                    Imagem processada Sentinel-2
+                </label>
+
+                <label>
+                    <input type="checkbox" id="camadaClassificacao">
+                    Classificação Random Forest
+                </label>
+            </div>
+
+            <div id="mapa-leaflet"></div>
+
+        </div>
+    </section>
+
+    <section id="classificacao">
+        <h2 class="section-title">Legenda das classes</h2>
+
+        <div class="legend">
+            <div class="legend-item">
+                <span class="color" style="background:#e53935"></span>
+                Cava
+            </div>
+
+            <div class="legend-item">
+                <span class="color" style="background:#f5a623"></span>
+                Pilha de estéril
+            </div>
+
+            <div class="legend-item">
+                <span class="color" style="background:#8e44ad"></span>
+                Barragem de rejeito
+            </div>
+
+            <div class="legend-item">
+                <span class="color" style="background:#2196f3"></span>
+                Água
+            </div>
+
+            <div class="legend-item">
+                <span class="color" style="background:#2ecc71"></span>
+                Vegetação
+            </div>
+
+            <div class="legend-item">
+                <span class="color" style="background:#bdc3c7"></span>
+                Estruturas
+            </div>
+        </div>
+
+        <h2 class="section-title">Estatísticas da classificação</h2>
+        <div id="estatisticas" class="info-grid">
+            <div class="info-card">
+                <small>Dados</small>
+                <h3>Aguardando consulta</h3>
+            </div>
+        </div>
+    </section>
+
+    <section id="metodologia">
+        <h2 class="section-title">Metodologia</h2>
+
+        <div class="method">
+            <article>
+                <h3>1. Aquisição</h3>
+                <p>Obtenção das imagens Sentinel-2 L2A.</p>
+            </article>
+
+            <article>
+                <h3>2. Processamento</h3>
+                <p>Preparação das bandas espectrais.</p>
+            </article>
+
+            <article>
+                <h3>3. Classificação</h3>
+                <p>Aplicação do algoritmo Random Forest.</p>
+            </article>
+
+            <article>
+                <h3>4. Análise</h3>
+                <p>Visualização dos resultados geoespaciais.</p>
+            </article>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <strong>PROJETO S11D</strong>
+    <p>Plataforma de Monitoramento Geoespacial</p>
+    <p>Desenvolvido em Python e tecnologias geoespaciais.</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    // Centro aproximado da região do Complexo S11D
+    const coordenadasS11D = [-6.40, -50.08];
+
+    const mapa = L.map("mapa-leaflet").setView(coordenadasS11D, 13);
+
+    // Fundo de satélite
+    L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        {
+            attribution: "Tiles © Esri",
+            maxZoom: 19
+        }
+    ).addTo(mapa);
+
+    // Camada de nomes e limites sobre o satélite
+    L.tileLayer(
+        "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+        {
+            attribution: "Esri",
+            maxZoom: 19
+        }
+    ).addTo(mapa);
+
+    // Marcador da região de estudo
+    const marcadorS11D = L.marker(coordenadasS11D)
+        .addTo(mapa)
+        .bindPopup("<b>Complexo Minerário S11D</b><br>Canaã dos Carajás - PA");
+
+    let imagemSentinel = null;
+    let imagemClassificacao = null;
+
+    // Extensão aproximada do recorte de estudo
+    const limitesImagem = [
+        [-6.46, -50.08],
+        [-6.37, -49.97]
+    ];
+
+    function atualizarCamadas() {
+        const sentinel = document.getElementById("camadaSentinel").checked;
+        const classificacao = document.getElementById("camadaClassificacao").checked;
+
+        if (sentinel && !imagemSentinel) {
+            imagemSentinel = L.imageOverlay(
+                "/api/satelite",
+                limitesImagem,
+                { opacity: 0.85 }
+            );
+        }
+
+        if (classificacao && !imagemClassificacao) {
+            imagemClassificacao = L.imageOverlay(
+                "/api/classificacao",
+                limitesImagem,
+                { opacity: 0.75 }
+            );
+        }
+
+        if (imagemSentinel) {
+            if (sentinel && !mapa.hasLayer(imagemSentinel)) {
+                imagemSentinel.addTo(mapa);
+            }
+
+            if (!sentinel && mapa.hasLayer(imagemSentinel)) {
+                mapa.removeLayer(imagemSentinel);
+            }
+        }
+
+        if (imagemClassificacao) {
+            if (classificacao && !mapa.hasLayer(imagemClassificacao)) {
+                imagemClassificacao.addTo(mapa);
+            }
+
+            if (!classificacao && mapa.hasLayer(imagemClassificacao)) {
+                mapa.removeLayer(imagemClassificacao);
+            }
+        }
+    }
+
+    document.getElementById("camadaSentinel")
+        .addEventListener("change", atualizarCamadas);
+
+    document.getElementById("camadaClassificacao")
+        .addEventListener("change", atualizarCamadas);
+
+    // Pesquisa de localidades
+    async function pesquisarLocal() {
+        const campo = document.getElementById("pesquisa");
+        const mensagem = document.getElementById("mensagem");
+        const termo = campo.value.trim();
+
+        if (!termo) {
+            mensagem.textContent = "Digite o nome de uma localidade.";
+            return;
+        }
+
+        mensagem.textContent = "Pesquisando localidade...";
+
+        try {
+            const url =
+                "https://nominatim.openstreetmap.org/search?format=json&limit=5&q=" +
+                encodeURIComponent(termo + ", Pará, Brasil");
+
+            const resposta = await fetch(url);
+            const resultados = await resposta.json();
+
+            if (!resultados.length) {
+                mensagem.textContent = "Localidade não encontrada.";
+                return;
+            }
+
+            const local = resultados[0];
+            const latitude = Number(local.lat);
+            const longitude = Number(local.lon);
+
+            mapa.setView([latitude, longitude], 14);
+
+            L.marker([latitude, longitude])
+                .addTo(mapa)
+                .bindPopup("<b>" + escaparHTML(local.display_name) + "</b>")
+                .openPopup();
+
+            mensagem.textContent = "Local encontrado: " + local.display_name;
+
+        } catch (erro) {
+            mensagem.textContent =
+                "Não foi possível pesquisar. Verifique sua conexão com a internet.";
+        }
+    }
+
+    function escaparHTML(texto) {
+        const elemento = document.createElement("div");
+        elemento.textContent = texto;
+        return elemento.innerHTML;
+    }
+
+    document.getElementById("pesquisa")
+        .addEventListener("keydown", function(evento) {
+            if (evento.key === "Enter") {
+                pesquisarLocal();
+            }
+        });
+
+    function centralizarS11D() {
+        mapa.setView(coordenadasS11D, 13);
+        marcadorS11D.openPopup();
+    }
+
+    // Carregar estatísticas fornecidas pelo Flask
+    async function carregarEstatisticas() {
+        const painel = document.getElementById("estatisticas");
+
+        try {
+            const resposta = await fetch("/api/estatisticas");
+
+            if (!resposta.ok) {
+                throw new Error("Estatísticas indisponíveis");
+            }
+
+            const dados = await resposta.json();
+
+            if (Array.isArray(dados)) {
+                painel.innerHTML = dados.map(item => `
+                    <div class="info-card">
+                        <small>${escaparHTML(String(item.classe ?? item.nome ?? ""))}</small>
+                        <h3>${escaparHTML(String(item.percentual ?? item.porcentagem ?? ""))}%</h3>
+                        <p>${escaparHTML(String(item.pixels ?? ""))} pixels</p>
+                    </div>
+                `).join("");
+            } else {
+                painel.innerHTML = `
+                    <div class="info-card">
+                        <small>Estatísticas</small>
+                        <h3>Dados recebidos</h3>
+                        <p>Consulte os arquivos de resultados do projeto.</p>
+                    </div>
+                `;
+            }
+
+        } catch (erro) {
+            painel.innerHTML = `
+                <div class="info-card">
+                    <small>Estatísticas</small>
+                    <h3>Indisponíveis</h3>
+                    <p>Não foi possível carregar os dados.</p>
+                </div>
+            `;
+        }
+    }
+
+    carregarEstatisticas();
+</script>
+
+</body>
+</html>
